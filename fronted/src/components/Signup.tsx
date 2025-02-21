@@ -1,19 +1,20 @@
 import React, { useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase";
-
-const Signup = () => {
+import { useNavigate } from "react-router-dom";
+import "./auth.css"
+const Signup: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-  const handleSignup = async (e) => {
+  const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      redirectTo("/login");
-      // Redirect or show success message
-    } catch (err) {
+      navigate("/login");
+    } catch (err: any) {
       setError(err.message);
     }
   };
