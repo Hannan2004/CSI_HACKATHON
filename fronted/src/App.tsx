@@ -4,6 +4,7 @@ import ContractAnalyzer from "./components/ContractAnalyzer";
 import Signup from "./components/Signup";
 import Login from "./components/Login";
 import LandingPage from "./components/LandingPage";
+import Chatbot from "./components/Chatbot";
 
 const App: React.FC = () => {
   return (
@@ -14,6 +15,7 @@ const App: React.FC = () => {
           <Route path="/signup" element={<Signup />} />
           <Route path="/analyze" element={<ContractAnalyzer />} />
           <Route path="/" element={<LandingPage />} />
+          <Route path="/chat" element={<Chatbot />} />
         </Routes>
       </div>
     </Router>

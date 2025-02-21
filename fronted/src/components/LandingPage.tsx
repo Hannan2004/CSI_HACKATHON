@@ -1,25 +1,23 @@
-"use client"
-
-import type React from "react"
-import { useEffect } from "react"
-import { Link } from "react-router-dom"
-import { FileText } from "lucide-react"
-import "./landing-page.css"
+import React, { useEffect } from "react";
+import { Link } from "react-router-dom";
+import { FileText } from "lucide-react";
+import Chatbot from "./Chatbot";
+import "./landing-page.css";
 
 const LandingPage: React.FC = () => {
   useEffect(() => {
     // Ensure proper height on mobile devices
-    const vh = window.innerHeight * 0.01
-    document.documentElement.style.setProperty("--vh", `${vh}px`)
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty("--vh", `${vh}px`);
 
     const handleResize = () => {
-      const vh = window.innerHeight * 0.01
-      document.documentElement.style.setProperty("--vh", `${vh}px`)
-    }
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty("--vh", `${vh}px`);
+    };
 
-    window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
-  }, [])
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   return (
     <div className="landing-container">
@@ -41,10 +39,12 @@ const LandingPage: React.FC = () => {
           Try Demo
         </Link>
       </div>
+
+      <div className="chatbot-container">
+        <Chatbot />
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default LandingPage
-
-
+export default LandingPage;

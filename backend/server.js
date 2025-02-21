@@ -3,7 +3,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const multer = require("multer");
 
-const { handleContractUpload } = require('./handleContractUpload');
+const { handleContractUpload } = require('./handleContractUpload'); 
 
 const app = express();
 const port = 5000;
@@ -30,6 +30,7 @@ app.post('/analyse-documents', upload.single('contract'), async (req, res) => {
         res.status(500).send({ error: 'An error occurred while reviewing the contract.' });
     }
 });
+
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
