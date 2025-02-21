@@ -6,40 +6,9 @@ const {
 const { GoogleAIFileManager } = require("@google/generative-ai/server");
 require('dotenv').config();
 
-const apiKey = 'Your-api-key-here';
+const apiKey = 'AIzaSyCGKZL92vJmqXUcR0W0TkOPOoPRbj0TW-o';
 const genAI = new GoogleGenerativeAI(apiKey);
 const fileManager = new GoogleAIFileManager(apiKey);
-
-const model = genAI.getGenerativeModel({
-  model: "gemini-1.5-flash",
-  systemInstruction: `
-You are an AI legal assistant specializing in contract analysis. Your task is to analyze the given legal document, extract key clauses, identify potential risks, and summarize the contract.  
-You must provide the response in a structured JSON format for easy rendering.  
-If the contract text lacks relevant information, indicate that in the response instead of making assumptions.  
-
-### **Response Format (JSON)**  
-{  
-"key_clauses": [  
-    {"title": "Clause Name", "description": "Detailed explanation of the clause"},  
-    {"title": "Clause Name", "description": "Detailed explanation of the clause"}  
-],  
-"risks_detected": [  
-    {"risk": "Risk Type", "explanation": "Why this is a risk"},  
-    {"risk": "Risk Type", "explanation": "Why this is a risk"}  
-],  
-"summary": "Brief summary of the contract in simple terms."  
-}  
-  `
-});
-
-// Optimize configuration for faster responses
-const generationConfig = {
-  temperature: 0.4,   // Reduced temperature for more deterministic responses
-  topP: 0.85,        // Reduced topP for a narrower response distribution
-  topK: 50,          // Reduced topK to consider fewer options
-  maxOutputTokens: 1024, // Reduced tokens to speed up the response
-  responseMimeType: "application/json",
-};
 
 async function uploadToGemini(path, mimeType) {
   const uploadResult = await fileManager.uploadFile(path, {
@@ -67,6 +36,55 @@ async function waitForFilesActive(files) {
   console.log("...all files ready\n");
 }
 
+const model = genAI.getGenerativeModel({
+  model: "gemini-1.5-flash",
+  systemInstruction: `
+You are an AI legal assistant specializing in contract analysis. Your task is to analyze the given legal document, extract key clauses, identify potential risks, and summarize the contract.  
+You will follow the ReAct (Reasoning + Action) framework to ensure a structured response:  
+
+1. **Reasoning:** Think step by step about the contract's content and structure. Identify its key elements, important clauses, and potential risks.  
+2. **Action:** Based on the reasoning, provide an analysis in a structured text format.  
+
+---
+### **Reasoning Process:**  
+1. Read and understand the contract content.  
+2. Identify key clauses and their implications.  
+3. Detect any potential risks that might affect the involved parties.  
+4. Summarize the contract in clear, simple terms.  
+
+---
+### **Contract Analysis Report**  
+
+**Step 1: Summary**  
+Summarize the contract in simple terms. Explain its purpose, key obligations, and important details.  
+
+**Step 2: Key Clauses**  
+- Clause Name: Explain its purpose and relevance.  
+- Clause Name: Explain its purpose and relevance.  
+
+**Step 3: Potential Risks**  
+- Risk Type: Explain why this is a risk and its possible impact.  
+- Risk Type: Explain why this is a risk and its possible impact.  
+
+---
+### **Contract Text:**  
+<context>  
+{context}  
+</context>  
+
+### **Question:**  
+{input}    
+  `
+});
+
+const generationConfig = {
+  temperature: 1,
+  topP: 0.95,
+  topK: 40,
+  maxOutputTokens: 8192,
+  responseMimeType: "text/plain",
+};
+
 async function handleContractUpload(filePath, mimeType) {
   const files = [
       await uploadToGemini(filePath, mimeType),
@@ -91,11 +109,10 @@ async function handleContractUpload(filePath, mimeType) {
       ],
   });
 
-  const result = await chatSession.sendMessage("Analyse this contract.");
-  console.log('Chat session result:', result);
+  const result = await chatSession.sendMessage("Analyse this given contract and clearly follow the given system instructions.");
+  console.log('Chat session result:', result.response.text());
 
-  // Assuming result is already a JSON object
-  return result.response.text;
+  return result.response.text();
 }
 
 module.exports = { handleContractUpload };
